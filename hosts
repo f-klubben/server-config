@@ -1,0 +1,5 @@
+[server]
+fklub.dk
+
+[server:vars]
+ansible_interpreter=/usr/bin/python3

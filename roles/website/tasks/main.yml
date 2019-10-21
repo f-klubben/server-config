@@ -1,0 +1,95 @@
+---
+- name: Install nginx
+  apt:
+    name: nginx
+    state: latest
+
+- name: Install php-fpm
+  apt:
+    name: php-fpm
+    state: latest
+
+- name: Install php-mysql
+  apt:
+    name: php-mysql
+    state: latest
+
+- name: Install php-xml
+  apt:
+    name: php-xml
+    state: latest
+
+- name: Install php-gd
+  apt:
+    name: php-gd
+    state: latest
+
+- name: Install php-imagick
+  apt:
+    name: php-imagick
+    state: latest
+
+- name: Install php-curl
+  apt:
+    name: php-curl
+    state: latest
+
+- name: Install php-bcmath
+  apt:
+    name: php-bcmath
+    state: latest
+
+- name: Systemd load new services
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start php-fpm
+  systemd:
+    name: php7.2-fpm.service
+    state: started
+    enabled: yes
+
+- name: Copy nginx site configs
+  synchronize:
+    src: sites-enabled
+    dest: /etc/nginx
+    archive: no
+    delete: yes
+    recursive: yes
+
+- name: Set nginx site configs permissions
+  file:
+    path: /etc/nginx/sites-enabled
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+    recurse: yes
+
+- name: Copy nginx config snippet
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/nginx/snippets/{{ item }}"
+  loop:
+    - mozilla-ssl.conf
+    - letsencrypt.conf
+    - php.conf
+
+- name: Copy php config
+  copy:
+    src: "php.ini"
+    dest: "/etc/php/7.2/fpm/php.ini"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+
+- name: Enable and start php-fpm
+  systemd:
+    name: php7.2-fpm.service
+    state: reloaded
+    enabled: yes
+
+- name: Enable and start nginx
+  systemd:
+    name: nginx.service
+    state: reloaded
+    enabled: yes

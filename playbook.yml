@@ -1,0 +1,25 @@
+---
+- hosts: server
+  become: yes
+  gather_facts: yes
+  tasks:
+    - include_vars:
+        file: domains.yml
+    - include_role:
+        name: certificates
+      vars:
+        acme_server: https://acme-v02.api.letsencrypt.org/directory
+        acme_email: fit@fklub.dk
+        acme_domains: "{{ domains }}"
+    - include_role:
+        name: duckle29.dhparam
+      vars:
+        dhparams_keysize: 4096
+        dhparams_remote_directory: /etc/nginx
+        dhparams_filename: dhparams.pem
+        dhparams_owner: www-data
+        dhparams_group: www-data
+        dhparams_mode: u=rwx,go=rx
+        dhparams_directory_mode: u=rwx,go=rx
+    - include_role:
+        name: website
